@@ -2,6 +2,7 @@
 using archivesystemDomain.Interfaces;
 using archivesystemDomain.Services;
 using archivesystemWebUI.Infrastructures;
+using archivesystemWebUI.Infrastructures.CustomFilters;
 using archivesystemWebUI.Interfaces;
 using archivesystemWebUI.Models;
 using archivesystemWebUI.Models.FolderModels;
@@ -11,6 +12,7 @@ using AutoMapper;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -22,6 +24,9 @@ namespace archivesystemWebUI.Controllers
 {
 
     [Authorize(Roles = RoleNames.FolderAllowedRoles)]
+    //[CheckSessionData]
+    [RegisterRequestTime]
+  
     public class FolderController : Controller
     {
         
@@ -39,34 +44,30 @@ namespace archivesystemWebUI.Controllers
 
         // GET: /folders
         [Route("folders")]
-        public ActionResult Index(string search = null, string returnUrl="/folders")
+        public ActionResult Index(string search = null, string returnUrl="/folders",bool requestForOTP = true)
         {
+            if (!requestForOTP && returnUrl != "/folders")
+                return RedirectToAction(nameof(GetFolder), new { folderId = returnUrl.Split('/')[1] });
+            
             FolderPageViewModel model = GetRootViewModel(returnUrl, search);
             if (model == null) // user does not yet have an access level
             {
                 TempData[GlobalConstants.userHasNoAccesscode] = true;
                 return RedirectToAction("Index", "Home");
             }
+
             if (!HttpContext.User.IsInRole(RoleNames.Admin))
             {
-                CheckForUserAccessCode(out bool hasCorrectAccessCode, out double timeSinceLastRequest);
-                model.CloseAccessCodeModal = hasCorrectAccessCode && timeSinceLastRequest <= GlobalConstants.LOCKOUT_TIME;
-                if (!hasCorrectAccessCode || timeSinceLastRequest > GlobalConstants.LOCKOUT_TIME)
-                {
-                    model.DirectChildren = null;
-                    if (!hasCorrectAccessCode) SendUserAccessCodeToUser();
-                    var errorMessage = hasCorrectAccessCode ? "Locked out due to inactivity, Check your mail for your OTP " :
-                        "Check your mail for your OTP" ;
+                model.RequestForOTP = returnUrl == "/folders" ?  false: requestForOTP;
+                var hasCorrectAccessCode = Session[SessionData.AccessValidated] != null;
+                var errorMessage = hasCorrectAccessCode ? 
+                    "Locked out due to inactivity, Check your mail for your OTP " :
+                    "Check your mail for your OTP" ;
                     ModelState.AddModelError("", errorMessage);
-                }
-                
             }
-            else
-                model.CloseAccessCodeModal = true;
+            else  model.RequestForOTP = false;
 
-            model.Files = model.CloseAccessCodeModal ? model.Files : null;
             ViewBag.AllowCreateFolder = false;
-            ViewBag.ErrorMessage = TempData["errorMessage"];
             return View("FolderList", model);
         }
 
@@ -148,31 +149,23 @@ namespace archivesystemWebUI.Controllers
 
         //GET: /folders/{id}
         [Route("folders/{folderId:int}")]
+        [ValidateAccess]
         [HttpGet]
         public ActionResult GetFolder(int folderId)
-        {
-            GetFolder(out Folder folder, folderId);
+         {
+            Folder folder = _service.GetFolder(folderId);
             if (folder.Name == GlobalConstants.RootFolderName || folder== null)
                 return RedirectToAction(nameof(Index));
-            if (HttpContext.User.IsInRole(RoleNames.Admin))
-                ViewBag.AllowCreateFolder = false;
+
+            
+            if (HttpContext.User.IsInRole(RoleNames.Admin)) ViewBag.AllowCreateFolder = false;
             else
             {
-                CheckForUserAccessCode(out bool hasCorrectAccessCode, out double timeSinceLastRequest);
-                if (!hasCorrectAccessCode || timeSinceLastRequest > GlobalConstants.LOCKOUT_TIME)
-                    return RedirectToAction(nameof(Index), new { returnUrl = $"/folders/{folderId}" });
-
-                VerifyAccessAndFilterFolderSubFolders(out bool hasAuthorizedAccessToFolder, folder);
-                if (!hasAuthorizedAccessToFolder)
-                    return RedirectToAction(nameof(Index));
-
+                FilterFolderSubFolders(folder);
                 var userIsnotPermitted = IsCreateActionForbidden(folder);
-                if (userIsnotPermitted)
-                    ViewBag.AllowCreateFolder = false;
-                else
-                    ViewBag.AllowCreateFolder = true;
+                if (userIsnotPermitted)  ViewBag.AllowCreateFolder = false;
+                else  ViewBag.AllowCreateFolder = true;  
             }
-
             return View("FolderList", GetViewModelForView(folder, folderId));
         }
 
@@ -280,8 +273,7 @@ namespace archivesystemWebUI.Controllers
             var result = _service.VerifyAccessCode(userId,accessCode);
             if (result.Status == HttpStatusCode.OK) 
             {
-                Session[GlobalConstants.IsAccessValidated] = true;
-                Session[GlobalConstants.LastVisit] = DateTime.Now;
+                Session[SessionData.AccessValidated] = true;
             } 
 
             return Json(result);
@@ -310,11 +302,6 @@ namespace archivesystemWebUI.Controllers
             timeSinceLastRequest = (DateTime.Now - (DateTime)lastVisitTime).TotalMinutes;
         }
 
-
-        private void GetFolder(out Folder folder, int folderId)
-        {
-            folder = _service.GetFolder(folderId);
-        }
         private FolderPageViewModel GetModelUsingService(string returnUrl)
         {
             var userId = HttpContext.User.Identity.GetUserId();
@@ -336,9 +323,7 @@ namespace archivesystemWebUI.Controllers
         {
             var folderpath = _service.GetFolderPath(folderId);
             var model = Mapper.Map<FolderPageViewModel>(folder);
-            model.CloseAccessCodeModal = true;
             model.CurrentPath = folderpath;
-            Session[GlobalConstants.LastVisit] = DateTime.Now;
             return model;
         }
         private FolderPageViewModel SearchForFolders(string search)
@@ -350,7 +335,7 @@ namespace archivesystemWebUI.Controllers
             {
                 DirectChildren = folders,
                 CurrentPath = new List<FolderPath>(),
-                CloseAccessCodeModal = true,
+                RequestForOTP = false,
                 Id = 0
             };
             return model;
@@ -380,16 +365,25 @@ namespace archivesystemWebUI.Controllers
 
             return false;
         }
-        private void VerifyAccessAndFilterFolderSubFolders(out bool hasAuthorizedAccessToFolder, Folder folder)
+        private void FilterFolderSubFolders( Folder folder)
         {
-            var userId = HttpContext.User.Identity.GetUserId();
-            var userData = _service.GetUserData(userId);
-            hasAuthorizedAccessToFolder = _service.DoesUserHasAccessToFolder(folder,userData);
-            if (hasAuthorizedAccessToFolder)
-                _service.FilterFolderSubFoldersUsingAccessLevel(folder, userData.UserAccessLevel);
+            var facultyId = (int)Session[SessionData.FacultyId];
+            //if folder is rootfolder filter out folders other Faculty folders
+            if (folder.Name == GlobalConstants.RootFolderName)
+                folder.Subfolders = folder.Subfolders.Where(x => x.FacultyId == facultyId).ToList();
+            else
+            {
+                //Filter out folders with higher accesslevels
+                var accessLevel = (int)Session[SessionData.AccessLevel];
+                folder.Subfolders = folder.Subfolders.Where(x => x.AccessLevelId <= accessLevel).ToList();
 
-            TempData["errorMessage"] =
-                hasAuthorizedAccessToFolder ? null : $"You are not authorized to view {folder.Name} folder";
+                //filter out folders based on dept
+                var deptId = (int)Session[SessionData.DeptId];
+                folder.Subfolders = folder.Subfolders.Where(x => x.DepartmentId == deptId).ToList();
+
+            }
+
+           
         }
 
         private void SendUserAccessCodeToUser()

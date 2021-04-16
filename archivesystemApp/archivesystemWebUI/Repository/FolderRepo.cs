@@ -56,7 +56,7 @@ namespace archivesystemWebUI.Repository
         public List<File> GetFilesThatMactchFileName(int folderId,string filename,bool returnall=false)
         {
             //var data=_context.Folders.Include(x => x.Files.Select( y=> y.FileMeta)).Where(c=> c.Id== folderId);
-            var data = FindWithNavProps(x => x.Id == folderId, y => y.Files.Select(z => z.FileMeta));
+            var data = FindWithNavProps(x => x.Id == folderId, y => y.Files.Select(z => z.FileContent));
             if (data == null || data.Count()==0) return null;
 
             var folder = data.SingleOrDefault(c => c.Id == folderId);
@@ -64,7 +64,7 @@ namespace archivesystemWebUI.Repository
             if (folder.Files == null) return null;
             if (returnall) return folder.Files.ToList();
 
-            return folder.Files.Where(x=> x.FileMeta.Title.ToLower().Contains(filename.ToLower())).ToList();
+            return folder.Files.Where(x=> x.FileContent.Title.ToLower().Contains(filename.ToLower())).ToList();
 
         }
 

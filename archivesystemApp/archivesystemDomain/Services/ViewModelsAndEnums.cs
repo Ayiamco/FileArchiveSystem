@@ -63,4 +63,13 @@ namespace archivesystemDomain.Services
         Failure,
         Prohibited
     }
+
+    public class SessionData
+    {
+        public const string  AccessLevel= "AccessLevel";
+        public const string  LastRequestTime= "LastRequestTime";
+        public const string AccessValidated = "AccessValidated";
+        public const string DeptId = "DeptId";
+        public const string FacultyId = "FacultyId";
+    }
 }

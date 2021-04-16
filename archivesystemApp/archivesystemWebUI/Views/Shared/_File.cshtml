@@ -1,7 +1,7 @@
 ﻿@model archivesystemWebUI.Models.FolderModels.FolderFilesViewModel
 @{
     var icon = "fa-file-o";
-    var fileName = $"{Model.Title.Trim()}.{Model.Name.Split('.').Last()}";
+    var fileName = $"{Model.Name.Trim()}";
 
     if (Model.ContentType.Split('/').First().ToLower() == "image")
     {

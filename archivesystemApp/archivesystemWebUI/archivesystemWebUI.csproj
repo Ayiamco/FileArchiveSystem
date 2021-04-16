@@ -214,7 +214,10 @@
     <Compile Include="Controllers\Api\UsersController.cs" />
     <Compile Include="Controllers\ApplicationsController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
-    <Compile Include="Infrastructures\CSRF.cs" />
+    <Compile Include="Infrastructures\CustomFilterAttributes\CheckSessionData.cs" />
+    <Compile Include="Infrastructures\CustomFilterAttributes\RegisterRequestTime.cs" />
+    <Compile Include="Infrastructures\CustomFilterAttributes\ValidateAccess.cs" />
+    <Compile Include="Infrastructures\CustomFilterAttributes\ValidateHeaderAntiForgeryToken.cs" />
     <Compile Include="Controllers\FileMetaController.cs" />
     <Compile Include="Controllers\UserAccessController.cs" />
     <Compile Include="Controllers\DepartmentController.cs" />
@@ -232,6 +235,7 @@
     <Compile Include="Infrastructures\MIMEType.cs" />
     <Compile Include="Infrastructures\NinjectDependenceResolver.cs" />
     <Compile Include="Infrastructures\MappingProfile.cs" />
+    <Compile Include="Infrastructures\SetSessionData.cs" />
     <Compile Include="Infrastructures\UserUniqueProps.cs" />
     <Compile Include="Interfaces\IAccessLevelService.cs" />
     <Compile Include="Interfaces\IApplicationService.cs" />
@@ -243,19 +247,6 @@
     <Compile Include="Interfaces\IUserAccessService.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="Interfaces\ITicketService.cs" />
-    <Compile Include="Migrations\202103232108221_Initial.cs" />
-    <Compile Include="Migrations\202103232108221_Initial.Designer.cs">
-      <DependentUpon>202103232108221_Initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202104071200243_AddTimeStampToAccessDetails.cs" />
-    <Compile Include="Migrations\202104071200243_AddTimeStampToAccessDetails.Designer.cs">
-      <DependentUpon>202104071200243_AddTimeStampToAccessDetails.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202104100515151_addedIsArchivedFlagToFilesEntity.cs" />
-    <Compile Include="Migrations\202104100515151_addedIsArchivedFlagToFilesEntity.Designer.cs">
-      <DependentUpon>202104100515151_addedIsArchivedFlagToFilesEntity.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\ApplicationVm.cs" />
     <Compile Include="Models\AssignDeptsVm.cs" />
     <Compile Include="Models\AssignUsersVm.cs" />
@@ -600,17 +591,6 @@
       <Project>{dffc3d6e-004f-411f-addf-89544e0bf227}</Project>
       <Name>archivesystemDomain</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202103232108221_Initial.resx">
-      <DependentUpon>202103232108221_Initial.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202104071200243_AddTimeStampToAccessDetails.resx">
-      <DependentUpon>202104071200243_AddTimeStampToAccessDetails.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202104100515151_addedIsArchivedFlagToFilesEntity.resx">
-      <DependentUpon>202104100515151_addedIsArchivedFlagToFilesEntity.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

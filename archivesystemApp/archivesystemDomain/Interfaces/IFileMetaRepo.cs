@@ -2,7 +2,7 @@
 
 namespace archivesystemDomain.Interfaces
 {
-    public interface IFileMetaRepo : IRepository<FileMeta>
+    public interface IFileMetaRepo : IRepository<FileContent>
     {
 
     }

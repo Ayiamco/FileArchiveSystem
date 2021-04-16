@@ -23,7 +23,7 @@ namespace archivesystemDomain.Entities
         public DbSet<AccessLevel> AccessLevels { get; set; }
         public DbSet<Token> Tokens { get; set; }
         public DbSet<AccessDetail> AccessDetails { get; set; }
-        public DbSet<FileMeta> FileMetas { get; set; }
+        public DbSet<FileContent> FileMetas { get; set; }
         public DbSet<Folder> Folders { get; set; }
         public DbSet<File> Files { get; set; }
         public DbSet<Ticket> Tickets { get; set; }

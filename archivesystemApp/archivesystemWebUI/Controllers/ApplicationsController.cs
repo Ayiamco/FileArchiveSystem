@@ -516,7 +516,7 @@ namespace archivesystemWebUI.Controllers
                 return null;
             }
             Response.AddHeader("Content-Disposition", "inline; filename=" + fileName);
-            return File(file.Content, file.ContentType);
+            return File(file.FileContent.Content, file.ContentType);
 
         }
 

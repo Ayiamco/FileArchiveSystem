@@ -111,10 +111,10 @@ namespace archivesystemWebUI.Controllers
             
             //Response.AppendHeader("Content-Disposition", "inline; filename=" + fileName
             
-            if(file.IsArchived) return File(file.Content, "application/zip", fileName.Split('.')[0]+".zip");
+            if(file.IsArchived) return File(file.FileContent.Content, "application/zip", fileName.Split('.')[0]+".zip");
 
             Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
-            return File(file.Content, file.ContentType);
+            return File(file.FileContent.Content, file.ContentType);
         }
 
        

@@ -8,8 +8,6 @@
     var currentFolderDepth = currentPath.Count();
     var subFolderLenght = Model.DirectChildren == null ? 0 : Model.DirectChildren.Count();
     var headerTitle = Model.Id == 0 ? "Your Search Result" : $"{Model.Name} ";
-    ICollection<archivesystemDomain.Entities.File> Files = Model.Files;
-
 }
 
 @Html.Partial("_FolderPathPartial", Model)
@@ -153,7 +151,7 @@
                             <div class="file-body">
                                 <div class="file-scroll">
                                     <div class="file-content-inner" id="FL-files">
-                                        @if (Model.CloseAccessCodeModal == true)
+                                        @if (Model.RequestForOTP == true)
                                         {
                                             Html.RenderAction("GetFolderFiles", "Folder", new { folderId = Model.Id });
                                         }
@@ -180,7 +178,7 @@
 
 <!--  Access code Modal -->
 @{
-    if (Model.CloseAccessCodeModal==false)
+    if (Model.RequestForOTP)
     {
         @Html.Partial("_EnterAccessCode")
     }

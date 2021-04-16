@@ -35,30 +35,44 @@ namespace archivesystemWebUI.Services
         public (bool save, FileMetaVm model) Create(FileMetaVm model, HttpPostedFileBase fileBase)
         {
             if (fileBase != null)  model.File = _upsertFile.Save(model.File, fileBase);
-            if (model.Archive) model.File.Content = ZipFile(model.File, model.Title +"." +model.FileBase.FileName.Split('.').Last());
-
+           
             model.File.IsArchived = model.Archive;
             model.File.AccessLevelId = model.AccessLevelId;
-            model.File.FileMeta = new FileMeta
+            model.File.UploadedById = model.UploadedById;
+            model.File.Name = $"{model.Title}.{fileBase.FileName?.Split('.').Last()}";
+            model.File.ContentType = fileBase.ContentType;
+            model.File.FileContent = new FileContent
             {
-                Title = model.Title,
-                UploadedById = model.UploadedById,
+                Title = $"{Guid.NewGuid():N}.{fileBase.FileName?.Split('.').Last()}",
                 CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = DateTime.Now,
             };
 
-            
+            if (model.Archive)
+                model.File.FileContent.Content = ZipFile(fileBase, model.Title + "." + model.FileBase.FileName.Split('.').Last());
+            else
+                model.File.FileContent.Content = ZipFile(fileBase, model.Title + "." + model.FileBase.FileName.Split('.').Last());
+
+
             _folderRepo.FindWithNavProps(f => f.Id == model.FolderId, _ => _.Files)
                        .SingleOrDefault()?.Files.Add(model.File);
             _unitOfWork.Save();
             return (true, model);
 
         }
-
+        private byte[] ReadBytes(HttpPostedFileBase file)
+        {
+            using (var reader = new System.IO.BinaryReader(file.InputStream))
+            {
+                var bytes= reader.ReadBytes(file.ContentLength);
+                return bytes;
+            }
+    
+        }
         public ICollection<archivesystemDomain.Entities.File> GetFiles(int folderId)
         {
             var files = _fileRepo.FindWithNavProps(_ => _.FolderId == folderId,
-                        _ => _.FileMeta, f => f.AccessLevel).ToList();
+                        _ => _.FileContent, f => f.AccessLevel).ToList();
 
             return files;
 
@@ -66,8 +80,7 @@ namespace archivesystemWebUI.Services
 
         public archivesystemDomain.Entities.File Details(int id)
         {
-            return _fileRepo.FindWithNavProps(f => f.Id == id, _ => _.FileMeta, _ => _.FileMeta.UploadedBy, _ => _.Folder)
-                            .SingleOrDefault();
+            return _fileRepo.FindWithNavProps(f => f.Id == id, x=> x.UploadedBy).SingleOrDefault();
         }
 
         public RequestResponse<string> DeleteFile(int id)
@@ -108,13 +121,13 @@ namespace archivesystemWebUI.Services
             }
         }
 
-        private byte[]  ZipFile(archivesystemDomain.Entities.File file,string fileName)
+        private byte[]  ZipFile(HttpPostedFileBase file,string fileName)
         {
             using (var ms = new MemoryStream())
             {
                 using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, true))
                 {
-                    byte[] bytes = file.Content;
+                    byte[] bytes = ReadBytes(file);
                     var zipEntry = archive.CreateEntry(fileName, CompressionLevel.Optimal); 
                     using (var zipStream = zipEntry.Open())
                     {

@@ -17,9 +17,9 @@ namespace archivesystemWebUI.Models.FolderModels
         public List<FolderPath> CurrentPath { get; set; }
 
         public ICollection<Folder> DirectChildren { get; set; }
-        public ICollection<File> Files { get; set; }
+  
 
         public string ReturnUrl { get; set; }
-        public bool CloseAccessCodeModal { get; set; }
+        public bool RequestForOTP { get; set; }
     }
 }

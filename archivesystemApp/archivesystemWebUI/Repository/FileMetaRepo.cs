@@ -7,7 +7,7 @@ using archivesystemDomain.Interfaces;
 
 namespace archivesystemWebUI.Repository
 {
-    public class FileMetaRepo : Repository<FileMeta>, IFileMetaRepo
+    public class FileMetaRepo : Repository<FileContent>, IFileMetaRepo
     {
         private readonly ApplicationDbContext _context;
 

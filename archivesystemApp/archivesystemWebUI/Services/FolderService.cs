@@ -133,6 +133,19 @@ namespace archivesystemWebUI.Services
         {
            return  _repo.AccessLevelRepo.GetAll();
         }
+
+        public int? GetCurrentUserAccessLevel(string userId)
+        {
+            var users = _repo.UserRepo.Find(c => c.UserId == userId);
+            var user = users.SingleOrDefault();
+            if (user == null) return null;
+
+            var userdetail = _repo.AccessDetailsRepo.Find(x => x.AppUserId == user.Id);
+            var userdetails = userdetail.SingleOrDefault();
+            var userAccessLevel = userdetails == null ? 0 : userdetails.AccessLevelId;
+            return userAccessLevel;
+        }
+
         public IEnumerable<AccessLevel> GetCurrentUserAllowedAccessLevels(string userId)
         {
             var users = _repo.UserRepo.Find(c => c.UserId == userId);
@@ -143,6 +156,7 @@ namespace archivesystemWebUI.Services
             var userdetail = _repo.AccessDetailsRepo.Find(x => x.AppUserId == user  .Id);
              var userdetails=userdetail.SingleOrDefault();
             var userAccessLevel = userdetails == null ? 0 : userdetails.AccessLevelId;
+            
             var allowedAccessLevels=_repo.AccessLevelRepo.GetAll().Where(x => x.Id <= userAccessLevel);
             if (allowedAccessLevels.Count() == 0) return null;
 
@@ -207,15 +221,11 @@ namespace archivesystemWebUI.Services
 
         public IEnumerable<FolderFilesViewModel> GetFolderFiles(int folderId)
         {
-            var files =
-                _repo.FileRepo
-                .FindWithNavProps(_ => _.FolderId == folderId,
-                    _ => _.FileMeta, f => f.AccessLevel).ToList();
+            var files =_repo.FileRepo.Find(_ => _.FolderId == folderId).ToList();
             if (files.Count() < 1) return null;
             var folderfilesmodel=files.Select(x => new FolderFilesViewModel
             { 
                 Id = x.Id,
-                Title = x.FileMeta.Title,
                 Name= x.Name,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt,

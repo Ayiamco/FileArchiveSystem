@@ -15,68 +15,29 @@ using archivesystemDomain.Interfaces;
 using archivesystemDomain.Services;
 using archivesystemWebUI.Interfaces;
 using Microsoft.AspNet.Identity.Owin;
+using archivesystemWebUI.Infrastructures;
 
 namespace archivesystemWebUI.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
-        private ApplicationRoleManager _roleManager;
-        private ApplicationSignInManager _signInManager;
-        private ApplicationUserManager _userManager;
+        
         private readonly IUserService _userService;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly IEmailSender _emailSender;
+        private readonly IFolderService _folderService;
+        private ApplicationSignInManager _signInManager => HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+        private ApplicationUserManager _userManager => HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+        private ApplicationRoleManager _roleManager => HttpContext.GetOwinContext().GetUserManager<ApplicationRoleManager>();
 
-        public AccountController(IUserService userService, ITokenGenerator tokenGenerator, IEmailSender emailSender)
+        public AccountController(IUserService userService, ITokenGenerator tokenGenerator,
+            IEmailSender emailSender,IFolderService folderService)
         {
             _userService = userService;
             _tokenGenerator = tokenGenerator;
             _emailSender = emailSender;
-        }
-
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager, ApplicationRoleManager roleManager )
-        {
-            _roleManager = roleManager;
-            UserManager = userManager;
-            SignInManager = signInManager;
-        }
-
-        public ApplicationSignInManager SignInManager
-        {
-            get
-            {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            }
-            private set 
-            { 
-                _signInManager = value; 
-            }
-        }
-
-
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
-
-        public ApplicationRoleManager RoleManager
-        {
-            get
-            {
-                return _roleManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationRoleManager>();
-            }
-            private set
-            {
-                _roleManager = value;
-            }
+            _folderService = folderService;
         }
 
         //
@@ -97,7 +58,7 @@ namespace archivesystemWebUI.Controllers
         {
 
             returnUrl = returnUrl ?? Url.Content("~/");
-            var user = await UserManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 ModelState.AddModelError("", "Invalid login attempt.");
@@ -110,14 +71,16 @@ namespace archivesystemWebUI.Controllers
                 return View(model);
             }
 
+            
+
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, shouldLockout: false);
-            var roles =  await UserManager.GetRolesAsync(user.Id);
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, shouldLockout: false);
+            var roles =  await _userManager.GetRolesAsync(user.Id);
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
+                    return RedirectToLocal(returnUrl,userId:user.Id);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -135,7 +98,7 @@ namespace archivesystemWebUI.Controllers
         public async Task<ActionResult> VerifyCode(string provider, string returnUrl, bool rememberMe)
         {
             // Require that the user has already logged in via username/password or external login
-            if (!await SignInManager.HasBeenVerifiedAsync())
+            if (!await _signInManager.HasBeenVerifiedAsync())
             {
                 return View("Error");
             }
@@ -158,7 +121,7 @@ namespace archivesystemWebUI.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
+            var result = await _signInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -225,7 +188,7 @@ namespace archivesystemWebUI.Controllers
                 var (found, user) = _userService.GetByMail(model.Email);
                   
                 var identityUser = new ApplicationUser { UserName = user.Name, Email = model.Email, EmailConfirmed = true, PhoneNumber = user.Phone};
-                var result = await UserManager.CreateAsync(identityUser, model.Password);
+                var result = await _userManager.CreateAsync(identityUser, model.Password);
                 if (result.Succeeded)
                 {         
                     var updateId = _userService.UpdateUserId(model.Email, identityUser.Id);
@@ -235,13 +198,13 @@ namespace archivesystemWebUI.Controllers
                         switch (user.Designation)
                         {
                             case Designation.Student:
-                                await UserManager.AddToRoleAsync(identityUser.Id, "Student");
+                                await _userManager.AddToRoleAsync(identityUser.Id, "Student");
                                 break;
                             case Designation.Alumni:
-                                await UserManager.AddToRoleAsync(identityUser.Id, "Alumni");
+                                await _userManager.AddToRoleAsync(identityUser.Id, "Alumni");
                                 break;
                             case Designation.Staff:
-                                await UserManager.AddToRoleAsync(identityUser.Id, "Staff");
+                                await _userManager.AddToRoleAsync(identityUser.Id, "Staff");
                                 break;
                             default:
                                 break;
@@ -250,7 +213,7 @@ namespace archivesystemWebUI.Controllers
                     }
 
                     _userService.CompleteReg(user);
-                    await SignInManager.SignInAsync(identityUser, isPersistent: false, rememberBrowser: false);
+                    await _signInManager.SignInAsync(identityUser, isPersistent: false, rememberBrowser: false);
                     return RedirectToAction("Index", "Home");
                 }
                 AddErrors(result);
@@ -273,7 +236,7 @@ namespace archivesystemWebUI.Controllers
             {
                 return View("Error");
             }
-            var result = await UserManager.ConfirmEmailAsync(userId, code);
+            var result = await _userManager.ConfirmEmailAsync(userId, code);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
@@ -297,15 +260,15 @@ namespace archivesystemWebUI.Controllers
                 return View(model);
 
             }
-            var user = await UserManager.FindByEmailAsync(model.Email);
-            if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user.Id)))
             {
                 // Don't reveal that the user does not exist or is not confirmed
                 return View("ForgotPasswordConfirmation");
             }
 
             // Send an email with this link
-            string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+            string code = await _userManager.GeneratePasswordResetTokenAsync(user.Id);
             var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
 
             try
@@ -350,14 +313,14 @@ namespace archivesystemWebUI.Controllers
                 return View(model);
             }
 
-            var user = await UserManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 // Don't reveal that the user does not exist
                 return RedirectToAction("ResetPasswordConfirmation", "Account");
             }
 
-            var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
+            var result = await _userManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
             if (result.Succeeded)
             {
                 return RedirectToAction("ResetPasswordConfirmation", "Account");
@@ -391,12 +354,12 @@ namespace archivesystemWebUI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> SendCode(string returnUrl, bool rememberMe)
         {
-            var userId = await SignInManager.GetVerifiedUserIdAsync();
+            var userId = await _signInManager.GetVerifiedUserIdAsync();
             if (userId == null)
             {
                 return View("Error");
             }
-            var userFactors = await UserManager.GetValidTwoFactorProvidersAsync(userId);
+            var userFactors = await _userManager.GetValidTwoFactorProvidersAsync(userId);
             var factorOptions = userFactors.Select(purpose => new SelectListItem { Text = purpose, Value = purpose }).ToList();
             return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
@@ -414,7 +377,7 @@ namespace archivesystemWebUI.Controllers
             }
 
             // Generate the token and send it
-            if (!await SignInManager.SendTwoFactorCodeAsync(model.SelectedProvider))
+            if (!await _signInManager.SendTwoFactorCodeAsync(model.SelectedProvider))
             {
                 return View("Error");
             }
@@ -433,7 +396,7 @@ namespace archivesystemWebUI.Controllers
             }
 
             // Sign in the user with this external login provider if the user already has a login
-            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+            var result = await _signInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -472,13 +435,13 @@ namespace archivesystemWebUI.Controllers
                     return View("ExternalLoginFailure");
                 }
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await UserManager.CreateAsync(user);
+                var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
-                    result = await UserManager.AddLoginAsync(user.Id, info.Login);
+                    result = await _userManager.AddLoginAsync(user.Id, info.Login);
                     if (result.Succeeded)
                     {
-                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                        await _signInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
                         return RedirectToLocal(returnUrl);
                     }
                 }
@@ -513,19 +476,16 @@ namespace archivesystemWebUI.Controllers
                 if (_userManager != null)
                 {
                     _userManager.Dispose();
-                    _userManager = null;
                 }
 
                 if (_signInManager != null)
                 {
                     _signInManager.Dispose();
-                    _signInManager = null;
                 }
 
                 if (_roleManager != null)
                 {
                     _roleManager.Dispose();
-                    _roleManager = null;
                 }
             }
 
@@ -552,15 +512,25 @@ namespace archivesystemWebUI.Controllers
             }
         }
 
-        private ActionResult RedirectToLocal(string returnUrl)
+        private ActionResult RedirectToLocal(string returnUrl, string userId=null)
         {
             if (Url.IsLocalUrl(returnUrl))
             {
+                if(userId!=null) SetSessionData(userId);
                 return Redirect(returnUrl);
             }
             return RedirectToAction("Index", "Home");
         }
 
+        private void SetSessionData(string userId)
+        {
+            if (userId == null) return;
+            var user = _userService.GetById(userId);
+            var userAccessLevel = _folderService.GetCurrentUserAccessLevel(userId);
+            HttpContext.Session[SessionData.AccessLevel] = userAccessLevel;
+            HttpContext.Session[SessionData.DeptId] = user.result?.DepartmentId;
+            HttpContext.Session[SessionData.FacultyId] = user.result?.Department?.FacultyId;
+        }
         internal class ChallengeResult : HttpUnauthorizedResult
         {
             public ChallengeResult(string provider, string redirectUri)

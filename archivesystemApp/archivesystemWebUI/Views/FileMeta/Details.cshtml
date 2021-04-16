@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var fileName = $"{Model.FileMeta.Title.Trim()}.{Model.Name.Split('.').Last()}";
+    var fileName = $"{Model.Name}";
 }
 
 
@@ -15,7 +15,7 @@
                 <h3 class="page-title">Profile</h3>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-                    <li class="breadcrumb-item active">@Model.FileMeta.Title</li>
+                    <li class="breadcrumb-item active">@Model.Name</li>
                 </ul>
             </div>
         </div>
@@ -32,9 +32,9 @@
                         <h3 class="user-name m-t-0 mb-0">@fileName</h3>
                         <hr />
                         <h5 class="text-info">@Model.Folder.Name</h5>
-                        <h5 class="text-muted">Uploaded By: @Model.FileMeta.UploadedBy.UserName</h5>
-                        <div class="staff-id">Uploaded : @Model.FileMeta.CreatedAt.ToString("g")</div>
-                        <div class="staff-id">Modified : @Model.FileMeta.UpdatedAt.ToString("g") </div>
+                        <h5 class="text-muted">Uploaded By: @Model.UploadedBy.UserName</h5>
+                        <div class="staff-id">Uploaded : @Model.FileContent.CreatedAt.ToString("g")</div>
+                        <div class="staff-id">Modified : @Model.FileContent.UpdatedAt.ToString("g") </div>
 
 
                         <div class="staff-msg"><a class="btn btn-custom" href="@Url.Action("GetFile","FileMeta", new {id = Model.Id, fileName})">View</a></div>

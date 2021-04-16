@@ -12,9 +12,8 @@ namespace archivesystemDomain.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public string ContentType { get; set; }
-        public byte[] Content { get; set; }
-        public int? FileMetaId { get; set; }
-        public FileMeta FileMeta { get; set; }
+        public int? FileContentId { get; set; }
+        public FileContent FileContent { get; set; }
         public int? FolderId { get; set; }
         public Folder Folder { get; set; }
         public int? AccessLevelId { get; set; }
@@ -22,6 +21,8 @@ namespace archivesystemDomain.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsArchived { get; set; }
+        public string UploadedById { get; set; }
+        public ApplicationUser UploadedBy { get; set; }
 
 
     }

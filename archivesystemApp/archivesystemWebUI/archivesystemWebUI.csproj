@@ -247,6 +247,11 @@
     <Compile Include="Interfaces\IUserAccessService.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="Interfaces\ITicketService.cs" />
+    <Compile Include="Migrations\202104161151200_inital-migration.cs" />
+    <Compile Include="Migrations\202104161151200_inital-migration.Designer.cs">
+      <DependentUpon>202104161151200_inital-migration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\ApplicationVm.cs" />
     <Compile Include="Models\AssignDeptsVm.cs" />
     <Compile Include="Models\AssignUsersVm.cs" />
@@ -591,6 +596,11 @@
       <Project>{dffc3d6e-004f-411f-addf-89544e0bf227}</Project>
       <Name>archivesystemDomain</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202104161151200_inital-migration.resx">
+      <DependentUpon>202104161151200_inital-migration.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

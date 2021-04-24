@@ -22,38 +22,21 @@ namespace archivesystemWebUI.Controllers
     [Authorize]
     public class UsersController : Controller
     {
-        private readonly IRoleService _roleService;
-
-
-
         private ApplicationUserManager _userManager;
         private ApplicationRoleManager _roleManager;
-
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IUserService _userService;
         private readonly IDepartmentService _departmentService;
-        private readonly IUserRepository _userRepository;
-        private readonly IEmailSender _emailSender;
-        private readonly ITokenGenerator _tokenGenerator;
+       
        
 
 
         public UsersController(
-            IUnitOfWork unitOfWork,
             IUserService userService,
-            IDepartmentService departmentService,
-            IUserRepository userRepository,
-            IEmailSender emailSender,
-            ITokenGenerator tokenGenerator,
-            IRoleService roleService)
+            IDepartmentService departmentService
+            )
         {
-            _unitOfWork = unitOfWork;
             _userService = userService;
             _departmentService = departmentService;
-            _userRepository = userRepository;
-            _emailSender = emailSender;
-            _tokenGenerator = tokenGenerator;
-            _roleService = roleService;
         }
         public UsersController(ApplicationUserManager userManager, ApplicationRoleManager roleManager)
         {

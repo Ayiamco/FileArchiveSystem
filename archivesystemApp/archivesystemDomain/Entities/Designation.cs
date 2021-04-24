@@ -1,10 +1,12 @@
-﻿namespace archivesystemDomain.Entities
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace archivesystemDomain.Entities
 {
-    public enum Designation
+    class Designation
     {
-        Student = 1,
-        Alumni,
-        Staff
-       
     }
 }

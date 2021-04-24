@@ -242,9 +242,9 @@
     <Compile Include="Interfaces\IFolderServiceUnitOfWork.cs" />
     <Compile Include="Interfaces\IUserAccessService.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
-    <Compile Include="Migrations\202104161151200_inital-migration.cs" />
-    <Compile Include="Migrations\202104161151200_inital-migration.Designer.cs">
-      <DependentUpon>202104161151200_inital-migration.cs</DependentUpon>
+    <Compile Include="Migrations\202104241254079_intialMigration.cs" />
+    <Compile Include="Migrations\202104241254079_intialMigration.Designer.cs">
+      <DependentUpon>202104241254079_intialMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AssignDeptsVm.cs" />
@@ -589,8 +589,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202104161151200_inital-migration.resx">
-      <DependentUpon>202104161151200_inital-migration.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202104241254079_intialMigration.resx">
+      <DependentUpon>202104241254079_intialMigration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

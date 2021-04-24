@@ -27,8 +27,8 @@ namespace archivesystemDomain.Services
             Create(RoleNames.DeptOfficer);
             Create(RoleNames.AgHOD);
             Create(RoleNames.Secretary);
-            Create(RoleNames.Alumni);
-            Create(RoleNames.Student);
+
+
            
             void Create(string name)
             {

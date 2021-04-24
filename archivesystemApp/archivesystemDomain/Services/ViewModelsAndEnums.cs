@@ -50,8 +50,6 @@ namespace archivesystemDomain.Services
         public const string HOD="HOD";
         public const string AgHOD="AgHOD";
         public const string Secretary="Secretary";
-        public const string Alumni="Alumni";
-        public const string Student="Student";
         public const string FolderAllowedRoles = "Admin,FacultyOfficer,DeptOfficer";
 
         

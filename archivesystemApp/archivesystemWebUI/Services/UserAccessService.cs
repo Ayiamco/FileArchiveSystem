@@ -107,7 +107,6 @@ namespace archivesystemWebUI.Services
                 if (model.RegenerateCode == CodeStatus.Yes)
                 {
                     var user = _userRepository.Get(model.AccessDetails.AppUserId);
-                    model.AccessDetails.AccessCode = await _accessCode.GenerateCode(user, update);
                 }
 
                 _accessDetailsRepository.EditDetails(model.AccessDetails);

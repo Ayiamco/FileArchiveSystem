@@ -20,7 +20,6 @@ namespace archivesystemDomain.Entities
         public AppUser AppUser { get; set; }
         public int AccessLevelId { get; set; }
         public AccessLevel AccessLevel { get; set; }
-        public string AccessCode { get; set; }
         public Status Status { get; set; }
         public DateTime CreatedAt {get;set;}
         public DateTime UpdatedAt { get; set; }

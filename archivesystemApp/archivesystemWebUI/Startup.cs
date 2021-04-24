@@ -12,7 +12,7 @@ namespace archivesystemWebUI
             ConfigureAuth(app);
             SeedRoles.EnsurePopulated();
             SeedAppData.EnsurePopulated();
-            SeedUsers.EnsurePopulated();
+            SeedAdmin.EnsurePopulated();
            
             
         }

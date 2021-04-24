@@ -171,48 +171,6 @@ namespace archivesystemApp.UnitTests.FolderServiceTests
             _repo.Verify(r => r.AccessDetailsRepo.Find(c => c.AppUserId == user.Id));
         }
 
-        [Test]
-        public void GetCurrentUserAccessCode_UserDoesNotExist_ReturnEmptyString()
-        {
-            var userId = "dummy userId";
-            var user = new AppUser { UserId = userId, Id = 1 };
-            _repo.Setup(r => r.UserRepo.GetUserByUserId(userId)).Returns<AppUser>(null);
-
-            var result = _service.GetCurrentUserAccessCode(userId);
-
-            Assert.That(result, Is.EqualTo(""));
-            _repo.Verify(r => r.UserRepo.GetUserByUserId(userId));
-        }
-
-        public void GetCurrentUserAccessCode_UserDoesNotHaveAccessCode_ReturnEmptyString()
-        {
-            var userId = "dummy userId";
-            var user = new AppUser { UserId = userId, Id = 1 };
-            _repo.Setup(r => r.UserRepo.GetUserByUserId(userId)).Returns(user);
-            _repo.Setup(r => r.AccessDetailsRepo.Find(x => x.AppUserId == user.Id)).Returns(new List<AccessDetail>());
-
-            var result = _service.GetCurrentUserAccessCode(userId);
-
-            Assert.That(result, Is.EqualTo(""));
-            _repo.Verify(r => r.UserRepo.GetUserByUserId(userId));
-        }
-        public void GetCurrentUserAccessCode_AccessCodeIsFound_ReturnEmptyString()
-        {
-            //Arrange
-            var userId = "dummy userId";
-            var user = new AppUser { UserId = userId, Id = 1 };
-            var userDetails = new AccessDetail { AccessCode = "dummy code" };
-            _repo.Setup(r => r.UserRepo.GetUserByUserId(userId)).Returns(user);
-            _repo.Setup(r => r.AccessDetailsRepo.Find(x => x.AppUserId == user.Id))
-                .Returns(new List<AccessDetail> { userDetails });
-
-            //Act
-            var result = _service.GetCurrentUserAccessCode(userId);
-
-            //Assert
-            Assert.That(result, Is.EqualTo(userDetails.AccessCode));
-            _repo.Verify(r => r.UserRepo.GetUserByUserId(userId));
-            _repo.Verify(r => r.AccessDetailsRepo.Find(x => x.AppUserId == user.Id));
-        }
+        
     }
 }

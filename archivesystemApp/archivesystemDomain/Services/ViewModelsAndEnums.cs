@@ -69,5 +69,6 @@ namespace archivesystemDomain.Services
         public const string AccessValidated = "AccessValidated";
         public const string DeptId = "DeptId";
         public const string FacultyId = "FacultyId";
+        public const string OTP = "OTP";
     }
 }

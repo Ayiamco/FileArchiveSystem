@@ -12,6 +12,7 @@ using archivesystemWebUI.Infrastructures;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using System.Web;
 
 namespace archivesystemWebUI.Services
 {
@@ -163,16 +164,12 @@ namespace archivesystemWebUI.Services
             return allowedAccessLevels;
         }
 
-        public string GetCurrentUserAccessCode(string userId)
+        public string GetCurrentUserAccessCode()
         {
-            var user = _repo.UserRepo.GetUserByUserId(userId);
-            if (user == null)
-                return null;
-            var userDetails = _repo.AccessDetailsRepo.Find(x => x.AppUserId == user.Id)?.SingleOrDefault();
-            if (userDetails == null) return null;
-            var timeDiff = DateTime.Now - userDetails.UpdatedAt;
-            if (timeDiff > new TimeSpan(0, GlobalConstants.LOCKOUT_TIME, 0)) return null;
-            return userDetails.AccessCode;
+            var sessionOTP = HttpContext.Current.Session[SessionData.OTP];
+            var otp = sessionOTP == null ? "" : (string)sessionOTP;
+             return otp;
+           
         }
 
         public RequestResponse<string> VerifyAccessCode(string userId,string code)
@@ -188,7 +185,10 @@ namespace archivesystemWebUI.Services
 
             if (timeDiff > new TimeSpan(0, GlobalConstants.LOCKOUT_TIME, 0)) return new RequestResponse<string>{
                 Status=HttpStatusCode.BadRequest,Message="Locked Out: Check mail for new OTP"};
-            if (_repo.CodeGenerator.VerifyCode(code, userDetails.AccessCode)) return new RequestResponse<string>{
+
+            var otp = HttpContext.Current.Session[SessionData.OTP] == null ? "" :
+                (string)HttpContext.Current.Session[SessionData.OTP];
+            if (_repo.CodeGenerator.VerifyCode(code, otp)) return new RequestResponse<string>{
                     Status = HttpStatusCode.OK, Message = "access code is correct"};
             return new RequestResponse<string>
             {
@@ -320,16 +320,11 @@ namespace archivesystemWebUI.Services
             if(userAccessDetails.Count() != 1) return FolderServiceResult.NotFound;
 
             var code=_repo.CodeGenerator.NewOTP();
-            var userAccessDetail = userAccessDetails.First();
-            userAccessDetail.UpdatedAt = DateTime.Now;
-            userAccessDetail.AccessCode = _repo.CodeGenerator.HashCode(code);
-
             await  _repo.MailSender.SendEmailAsync(
                     user.Single().Email,
                     "One Time AccessCode",
-                    $"Hi , Here is your one time accesscode {code}"
+                    $"Hi {user.Single().Name}, Here is your one time accesscode {code}"
                     );
-            _repo.Save();
             return FolderServiceResult.Success;
         }
 

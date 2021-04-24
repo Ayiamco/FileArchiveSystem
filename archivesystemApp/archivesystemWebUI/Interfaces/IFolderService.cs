@@ -19,7 +19,7 @@ namespace archivesystemWebUI.Interfaces
         Folder FilterFolderSubFoldersUsingAccessLevel(Folder folder, int userAccessLevel);
         IEnumerable<AccessLevel> GetAllAccessLevels();
         CreateFolderViewModel GetCreateFolderViewModel(int parentId, string userId, bool userIsAdmin = false);
-        string GetCurrentUserAccessCode(string userId);
+        string GetCurrentUserAccessCode();
         IEnumerable<AccessLevel> GetCurrentUserAllowedAccessLevels(string userId);
 
         List<File> GetFiles(string filename, int folderId, bool returnall = false);

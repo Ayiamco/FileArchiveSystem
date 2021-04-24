@@ -6,6 +6,12 @@ using System.Text;
 
 namespace archivesystemDomain.Entities
 {
+    public enum Designation
+    {
+        Student = 1,
+        Alumni,
+        Staff,
+    }
     public class AppUser
     {
         public int Id { get; set; }
@@ -36,7 +42,6 @@ namespace archivesystemDomain.Entities
         public bool Completed { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }
-        public ICollection<Activity> Activities { get; set; }
 
     }
 }

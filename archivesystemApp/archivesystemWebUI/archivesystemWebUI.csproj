@@ -210,10 +210,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccessLevelController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\Api\TicketsController.cs" />
     <Compile Include="Controllers\Api\UsersController.cs" />
-    <Compile Include="Controllers\ApplicationsController.cs" />
-    <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Infrastructures\CustomFilterAttributes\CheckSessionData.cs" />
     <Compile Include="Infrastructures\CustomFilterAttributes\RegisterRequestTime.cs" />
     <Compile Include="Infrastructures\CustomFilterAttributes\ValidateAccess.cs" />
@@ -238,7 +235,6 @@
     <Compile Include="Infrastructures\SetSessionData.cs" />
     <Compile Include="Infrastructures\UserUniqueProps.cs" />
     <Compile Include="Interfaces\IAccessLevelService.cs" />
-    <Compile Include="Interfaces\IApplicationService.cs" />
     <Compile Include="Interfaces\IFacultyService.cs" />
     <Compile Include="Interfaces\IFileService.cs" />
     <Compile Include="Interfaces\IFolderService.cs" />
@@ -246,13 +242,11 @@
     <Compile Include="Interfaces\IFolderServiceUnitOfWork.cs" />
     <Compile Include="Interfaces\IUserAccessService.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
-    <Compile Include="Interfaces\ITicketService.cs" />
     <Compile Include="Migrations\202104161151200_inital-migration.cs" />
     <Compile Include="Migrations\202104161151200_inital-migration.Designer.cs">
       <DependentUpon>202104161151200_inital-migration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\ApplicationVm.cs" />
     <Compile Include="Models\AssignDeptsVm.cs" />
     <Compile Include="Models\AssignUsersVm.cs" />
     <Compile Include="Models\CardsViewModel.cs" />
@@ -305,7 +299,6 @@
     <Compile Include="Repository\AccessLevelRepository.cs" />
     <Compile Include="Repository\TokenRepository.cs" />
     <Compile Include="Repository\UnitOfWork.cs" />
-    <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Services\DepartmentService.cs" />
     <Compile Include="Services\FacultyService.cs" />
     <Compile Include="Interfaces\IDepartmentService.cs" />
@@ -313,7 +306,6 @@
     <Compile Include="Services\FolderService.cs" />
     <Compile Include="Services\HomeService.cs" />
     <Compile Include="Services\RoleService.cs" />
-    <Compile Include="Services\TicketService.cs" />
     <Compile Include="Services\UserAccessService.cs" />
     <Compile Include="Services\AccessLevelService.cs" />
     <Compile Include="Services\UserService.cs" />
@@ -456,6 +448,7 @@
     <Content Include="Content\assets\plugins\summernote\dist\font\summernote.woff" />
     <Content Include="libman.json" />
     <Content Include="bower.json" />
+    <Content Include="appkeys.config" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

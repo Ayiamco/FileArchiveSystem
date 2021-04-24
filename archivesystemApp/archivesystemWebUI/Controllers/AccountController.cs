@@ -198,13 +198,16 @@ namespace archivesystemWebUI.Controllers
                         switch (user.Designation)
                         {
                             case Designation.Student:
-                                await _userManager.AddToRoleAsync(identityUser.Id, "Student");
+                                await _userManager.AddToRoleAsync(identityUser.Id, 
+                                    Enum.GetName(typeof(Designation),Designation.Student));
                                 break;
                             case Designation.Alumni:
-                                await _userManager.AddToRoleAsync(identityUser.Id, "Alumni");
+                                await _userManager.AddToRoleAsync(identityUser.Id, 
+                                    Enum.GetName(typeof(Designation), Designation.Alumni));
                                 break;
                             case Designation.Staff:
-                                await _userManager.AddToRoleAsync(identityUser.Id, "Staff");
+                                await _userManager.AddToRoleAsync(identityUser.Id,
+                                    Enum.GetName(typeof(Designation), Designation.Staff));
                                 break;
                             default:
                                 break;

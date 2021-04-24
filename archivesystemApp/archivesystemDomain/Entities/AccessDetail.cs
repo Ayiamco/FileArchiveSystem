@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 namespace archivesystemDomain.Entities
 {
+    public enum Status
+    {
+        Active, Inactive
+    }
+
     public class AccessDetail
     {
         public int Id { get; set; }

@@ -26,11 +26,6 @@ namespace archivesystemDomain.Entities
         public DbSet<FileContent> FileMetas { get; set; }
         public DbSet<Folder> Folders { get; set; }
         public DbSet<File> Files { get; set; }
-        public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<Application> Applications { get; set; }
-        public DbSet<Approval> Approvals { get; set; }
-        public DbSet<Signer> Signers { get; set; }
-        public DbSet<ApplicationReceiver> ApplicationReceivers { get; set; }
-        public DbSet<Activity> Activities { get; set; }
+        
     }
 }

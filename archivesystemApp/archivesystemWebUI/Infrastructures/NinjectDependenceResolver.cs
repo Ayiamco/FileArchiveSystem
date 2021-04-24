@@ -50,14 +50,10 @@ namespace archivesystemWebUI.Infrastructures
             kernel.Bind<IUnitOfWork>().To<UnitOfWork>();
             kernel.Bind<IFacultyRepository>().To<FacultyRepository>();
             kernel.Bind<IFileMetaRepo>().To<FileMetaRepo>();
-            kernel.Bind<ITicketRepo>().To<TicketRepo>();
-            kernel.Bind<IApplicationRepo>().To<ApplicationRepo>();
             kernel.Bind<IFacultyService>().To<FacultyService>();
             kernel.Bind<IDepartmentService>().To<DepartmentService>();
             kernel.Bind<IAccessLevelService>().To<AccessLevelService>();
             kernel.Bind<IUserAccessService>().To<UserAccessService>();
-            kernel.Bind<IApplicationService>().To<ApplicationService>();
-            kernel.Bind<ITicketService>().To<TicketService>();
             kernel.Bind<IUserService>().To<UserService>();
             kernel.Bind<IFileService>().To<FileService>();
             kernel.Bind<IFileRepo>().To<FileRepo>();

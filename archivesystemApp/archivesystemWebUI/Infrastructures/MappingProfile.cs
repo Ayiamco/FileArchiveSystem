@@ -19,7 +19,6 @@ namespace archivesystemWebUI.Infrastructures
     {
         private HttpContext Context => HttpContext.Current;
         private ApplicationUserManager UserManager => Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
-        private ApplicationRoleManager RoleManager => Context.GetOwinContext().GetUserManager<ApplicationRoleManager>();
 
         public MappingProfile()
         {
@@ -99,55 +98,6 @@ namespace archivesystemWebUI.Infrastructures
             Mapper.CreateMap<Folder, FolderPageViewModel>()
                 .ForMember(x=> x.DirectChildren,opt=> opt.MapFrom(src=> src.Subfolders));
 
-
-            Mapper.CreateMap<TicketViewModel, Ticket>()
-                .ForMember(dest => dest.CreatedAt, opt =>
-                    {
-                        opt.PreCondition(dest => dest.DestinationValue == null);
-                        opt.UseValue(DateTime.Now);
-                    }
-                )
-                .ForMember(dest => dest.UpdatedAt, opt => opt.UseValue(DateTime.Now));
-
-            Mapper.CreateMap<Ticket, TicketViewModel>();
-
-            Mapper.CreateMap<Ticket, TicketDataView>()
-                .ForMember(dest => dest.Status,
-                    opt => { opt.MapFrom(src => src.Status == Status.Active ? "Active" : "Inactive"); })
-                .ForMember(dest => dest.Designation, opt =>
-                {
-                    opt.MapFrom( src => GetDesignation.Value(src.Designation));
-                })
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt.ToString("dd MMM, yy")))
-                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString("dd MMM, yy")));
-
-            Mapper.CreateMap<Application, ApplicationsDataView>()
-                .ForMember(dest => dest.SubmissionDate, opt => opt.MapFrom(src => src.CreatedAt.ToString("dd MMM, yyyy")))
-                .ForMember(dest => dest.Receiver, opt => opt.MapFrom(src => src.Receivers.FirstOrDefault().Receiver.Name))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.ApplicationType.Name))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(scr => GetAppStatus.Value(scr.Status)))
-                .ForMember(dest => dest.Approval, opt => opt.MapFrom(src => GetApproval.Value(src.Approve)));
-            Mapper.CreateMap<Approval, ApprovalDataView>();
-
-            Mapper.CreateMap<Application, ApplicationsToSignDataView>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.ApplicationType.Name))
-                .ForMember(dest => dest.Approval, opt => opt.MapFrom(src => src.Approvals.SingleOrDefault()));
-
-            Mapper.CreateMap<ApplicationVm, Application>()
-                .ForMember(dest => dest.CreatedAt, opt =>
-                    {
-                        opt.PreCondition(dest => dest.DestinationValue == null);
-                        opt.UseValue(DateTime.Now);
-                    }
-                )
-                .ForMember(dest => dest.UpdatedAt, opt => opt.UseValue(DateTime.Now))
-                .ForMember(dest => dest.Status, opt =>
-                {
-                    opt.UseValue(ApplicationStatus.Pending);
-                })
-                .ForMember(dest => dest.RefNo, opt => opt.UseValue(Guid.NewGuid().ToString("N")));
-
-            Mapper.CreateMap<Application, ApplicationVm>();
             Mapper.CreateMap<EditAccessLevelViewModel, AccessLevel>().ReverseMap();
         }
     }

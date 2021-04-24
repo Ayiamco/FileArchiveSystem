@@ -23,7 +23,6 @@ namespace archivesystemWebUI.Services
        
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _userRepository;
-        private readonly IApplicationRepo _applicationRepo;
         private readonly IRoleService _roleService;
         private readonly IEmailSender _emailSender;
         private readonly ITokenRepo _tokenRepo;
@@ -34,7 +33,6 @@ namespace archivesystemWebUI.Services
         public UserService(
             IUnitOfWork unitOfWork,
             IUserRepository userRepository,
-            IApplicationRepo applicationRepo,
             IRoleService roleService,
             IEmailSender emailSender,
             ITokenRepo tokenRepo,
@@ -42,7 +40,6 @@ namespace archivesystemWebUI.Services
         {
             _unitOfWork = unitOfWork;
             _userRepository = userRepository;
-            _applicationRepo = applicationRepo;
             _roleService = roleService;
             _emailSender = emailSender;
             _tokenRepo = tokenRepo;

@@ -9,8 +9,7 @@ namespace archivesystemWebUI.Repository
         private readonly ApplicationDbContext _context;
 
         public UnitOfWork(
-            ApplicationDbContext context,
-            ITicketRepo ticketRepo
+            ApplicationDbContext context
         )
         {
           

@@ -22,6 +22,7 @@
             </div>
         </div>
     </div>
+
     <!-- /Page Header -->
     @if (TempData[GlobalConstants.userHasNoAccesscode] != null)
     {
@@ -32,11 +33,14 @@
             </button>
         </div>
     }
-   @* *@
-   @Html.Partial("_DashboardCards")
-    @Html.Partial("_DashboardTables") 
 
-  
+    @if (User.IsInRole(RoleNames.Admin) || User.IsInRole(RoleNames.Management))
+    {
+        @Html.Partial("_DashboardCards")
+        @Html.Partial("_DashboardTables")
+    }
+
+
+
 
 </div>
-    <!-- /Page Content -->

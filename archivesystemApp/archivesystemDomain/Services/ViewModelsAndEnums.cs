@@ -48,9 +48,8 @@ namespace archivesystemDomain.Services
         public const string FacultyOfficer = "FacultyOfficer";
         public const string DeptOfficer="DeptOfficer";
         public const string HOD="HOD";
-        public const string AgHOD="AgHOD";
-        public const string Secretary="Secretary";
-        public const string FolderAllowedRoles = "Admin,FacultyOfficer,DeptOfficer";
+        public const string Management="Management";
+        public const string FolderAllowedRoles = "Admin,FacultyOfficer,DeptOfficer,Management";
 
         
     }

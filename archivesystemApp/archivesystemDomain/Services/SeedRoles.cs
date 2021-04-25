@@ -25,11 +25,7 @@ namespace archivesystemDomain.Services
             Create(RoleNames.FacultyOfficer);
             Create(RoleNames.HOD);
             Create(RoleNames.DeptOfficer);
-            Create(RoleNames.AgHOD);
-            Create(RoleNames.Secretary);
 
-
-           
             void Create(string name)
             {
                 if (RoleManager.RoleExists(name)) return;

@@ -4,66 +4,20 @@
     <div class="sidebar-inner slimscroll">
         <div id="sidebar-menu" class="sidebar-menu">
             <ul>
-                <li class="menu-title">
-                    <span>Main</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("Index", "Home")"><i class="la la-dashboard"></i> <span> Dashboard</span> </a>
 
-                </li>
-
-                @if (@User.IsInRole(RoleNames.Admin))
+                @if (User.IsInRole(RoleNames.Admin) || User.IsInRole(RoleNames.Management))
                 {
+                    <li class="menu-title">
+                        <span>Main</span>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Index", "Home")"><i class="la la-dashboard"></i> <span> Dashboard</span> </a>
+
+                    </li>
                     <li class="">
                         <a href="@Url.Action("Index", "Users")"><i class="la la-user"></i> <span> User Management</span> </a>
 
                     </li>
-                }
-               
-            @if (User.IsInRole(RoleNames.Student) || User.IsInRole(RoleNames.Staff) || User.IsInRole(RoleNames.Alumni))
-            {
-                <li class="menu-title">
-                    <span>Application Management</span>
-                </li>
-                <li class="submenu">
-                    <a href="#"><i class="la la-mail-bulk"></i> <span> Applications</span> <span class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-
-                        <li><a href="@Url.Action("Index", "Applications")">My Applications</a></li>
-
-                        @if (User.IsInRole(RoleNames.Secretary))
-                        {
-                            <li><a href="@Url.Action("Incoming", "Applications")">Incoming</a></li>
-                            <li><a href="@Url.Action("IncomingForwarded", "Applications")">Incoming (Forwarded)</a></li>
-                            <li><a href="@Url.Action("Received", "Applications")">Received</a></li>
-                            <li><a href="@Url.Action("ReceivedForwarded", "Applications")">Received (Forwarded)</a></li>
-                            <li><a href="@Url.Action("Rejected", "Applications")">Rejected</a></li>
-                            <li><a href="@Url.Action("RejectedForwarded", "Applications")">Rejected (Forwarded)</a></li>
-                            <li><a href="@Url.Action("Archived", "Applications")">Archived</a></li>
-                        }
-                        @if (User.IsInRole(RoleNames.DeptOfficer))
-                        {
-                            <li><a href="@Url.Action("ToSign", "Applications")">Incoming</a></li>
-                            <li><a href="@Url.Action("Signed", "Applications")">Signed</a></li>
-                            <li><a href="@Url.Action("Declined", "Applications")">Decline</a></li>
-
-                        }
-
-                        @if (User.IsInRole(RoleNames.HOD))
-                        {
-                            <li><a href="@Url.Action("ToApprove", "Applications")">Incoming</a></li>
-                            <li><a href="@Url.Action("Approved", "Applications")">Approved</a></li>
-                            <li><a href="@Url.Action("Disapproved", "Applications")">Decline</a></li>
-                            <li><a href="@Url.Action("Forwarded", "Applications")">Forwarded</a></li>
-
-                        }
-
-                    </ul>
-                </li>
-            }
-                
-                @if (User.IsInRole(RoleNames.Admin))
-                {
                     <li class="menu-title">
                         <span>Role Management</span>
                     </li>
@@ -71,7 +25,6 @@
                         <a href="#" class="noti-dot"><i class="la la-tools"></i> <span> Roles</span> <span class="menu-arrow"></span></a>
                         <ul style="display: none;">
                             <li><a href="@Url.Action("Index", "Roles")">All Roles</a></li>
-
                         </ul>
                     </li>
 
@@ -110,20 +63,10 @@
                         </ul>
                     </li>
                 }
-                
-                @if (User.IsInRole(RoleNames.FacultyOfficer) 
-                    || User.IsInRole(RoleNames.DeptOfficer) || User.IsInRole(RoleNames.Admin))
-                {
-                    
-                    <li class="menu-title">
-                        <span>Archive</span>
-                    </li>
-                    <li><a href="@Url.Action("Index", "Folder")"><i class="la la-archive"></i> <span> File Manager</span></a></li>
-                }
-
-
-                
-             
+                <li class="menu-title">
+                    <span>Archive</span>
+                </li>
+                <li><a href="@Url.Action("Index", "Folder")"><i class="la la-archive"></i> <span> File Manager</span></a></li>
             </ul>
         </div>
     </div>

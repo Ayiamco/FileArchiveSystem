@@ -250,6 +250,10 @@
     <Compile Include="Migrations\202104241700394_DeletedAccessCodeFromAccessDetailsEntity.Designer.cs">
       <DependentUpon>202104241700394_DeletedAccessCodeFromAccessDetailsEntity.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202104251230323_modifiedAccessLevel.cs" />
+    <Compile Include="Migrations\202104251230323_modifiedAccessLevel.Designer.cs">
+      <DependentUpon>202104251230323_modifiedAccessLevel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AssignDeptsVm.cs" />
     <Compile Include="Models\AssignUsersVm.cs" />
@@ -573,6 +577,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202104241700394_DeletedAccessCodeFromAccessDetailsEntity.resx">
       <DependentUpon>202104241700394_DeletedAccessCodeFromAccessDetailsEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202104251230323_modifiedAccessLevel.resx">
+      <DependentUpon>202104251230323_modifiedAccessLevel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -19,7 +19,6 @@ namespace archivesystemWebUI.Interfaces
         Folder FilterFolderSubFoldersUsingAccessLevel(Folder folder, int userAccessLevel);
         IEnumerable<AccessLevel> GetAllAccessLevels();
         CreateFolderViewModel GetCreateFolderViewModel(int parentId, string userId, bool userIsAdmin = false);
-        string GetCurrentUserAccessCode();
         IEnumerable<AccessLevel> GetCurrentUserAllowedAccessLevels(string userId);
 
         List<File> GetFiles(string filename, int folderId, bool returnall = false);
@@ -35,7 +34,7 @@ namespace archivesystemWebUI.Interfaces
         FolderServiceResult MoveFolder(MoveItemViewModel model);
         FolderServiceResult SaveFolder(SaveFolderViewModel model);
         Task<FolderServiceResult> SendAccessCode(string userId);
-        RequestResponse<string> VerifyAccessCode(string userId, string code);
+        Task<RequestResponse<string>> VerifyAccessCode(string userId, string code);
 
 
     }

@@ -38,7 +38,7 @@ namespace archivesystemWebUI.Repository
         /// <returns>AccessLevel</returns>
         public AccessLevel GetByLevel(string Level)
         {
-            return _context.AccessLevels.FirstOrDefault(m => m.Level == Level);
+            return _context.AccessLevels.FirstOrDefault(m => m.Level == Convert.ToInt32(Level));
         }
         public AccessLevel GetBaseLevel()
         {

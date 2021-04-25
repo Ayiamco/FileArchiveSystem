@@ -76,7 +76,7 @@ namespace archivesystemWebUI.Controllers
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, shouldLockout: false);
-            var roles =  await _userManager.GetRolesAsync(user.Id);
+
             switch (result)
             {
                 case SignInStatus.Success:

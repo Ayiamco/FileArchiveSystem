@@ -14,12 +14,24 @@ namespace archivesystemWebUI.Infrastructures.CustomFilters
         {
             if (filterContext == null) throw new ArgumentNullException("filterContext");
             var httpContext = filterContext.HttpContext;
-            if (httpContext.Session[SessionData.AccessLevel] == null)
+            var lastVisitTime = httpContext.Session[SessionData.LastRequestTime] == null ?
+                Convert.ToDateTime("01/01/1970") : (DateTime)httpContext.Session[SessionData.LastRequestTime];
+            var timeSinceLastActivity = DateTime.Now - lastVisitTime;
+            var hasBeingInactive = timeSinceLastActivity > new TimeSpan(0, GlobalConstants.LOCKOUT_TIME, 0);
+
+            if (httpContext.Session[SessionData.AccessLevel] == null )
             {
-                httpContext.Response.Redirect("/account/login?returnUrl="+httpContext.Request.RawUrl);
+                httpContext.Response.Redirect("/account/login?returnUrl=" +httpContext.Request.RawUrl );
                 filterContext.Result = new EmptyResult();
                 return;
             }
+            if (httpContext.Session[SessionData.AccessValidated] == null || hasBeingInactive)
+            {
+                httpContext.Response.Redirect("/folders?returnUrl=" + httpContext.Request.RawUrl);
+                filterContext.Result = new EmptyResult();
+                return;
+            }
+            
             LogData();
             var hasCorrectAcessCode = httpContext.Session[SessionData.AccessValidated]!=null;
             var lastRequestTime =  httpContext.Session[SessionData.LastRequestTime] == null ?

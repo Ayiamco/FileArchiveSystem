@@ -164,32 +164,35 @@ namespace archivesystemWebUI.Services
             return allowedAccessLevels;
         }
 
-        public string GetCurrentUserAccessCode()
+        public async Task<RequestResponse<string>> VerifyAccessCode(string userId,string code)
         {
-            var sessionOTP = HttpContext.Current.Session[SessionData.OTP];
-            var otp = sessionOTP == null ? "" : (string)sessionOTP;
-             return otp;
+            var lastVisitTime = HttpContext.Current.Session[SessionData.OTPRequestTime] == null ?
+                Convert.ToDateTime("01/01/1970") : (DateTime)HttpContext.Current.Session[SessionData.OTPRequestTime];
+            var timeSinceLastActivity = DateTime.Now - lastVisitTime;
+            var isExpired = timeSinceLastActivity > new TimeSpan(0, GlobalConstants.LOCKOUT_TIME, 0);
+
+
+            if (isExpired) {
+                await SendAccessCode(userId);
+                return new RequestResponse<string>
+                {
+                    Status = HttpStatusCode.BadRequest,
+                    Message = "OTP expired: Check mail for new OTP"
+                };
+            }
            
-        }
-
-        public RequestResponse<string> VerifyAccessCode(string userId,string code)
-        {
-
-            var user = _repo.UserRepo.GetUserByUserId(userId);
-            if (user == null)
-                return new RequestResponse<string> { Status=HttpStatusCode.NotFound ,Message="Data not found contact admin."};
-            var userDetails = _repo.AccessDetailsRepo.Find(x => x.AppUserId == user.Id)?.SingleOrDefault();
-            if (userDetails == null) return new RequestResponse<string> { 
-                Status = HttpStatusCode.Forbidden,Message="You are not yet permitted to view documents" };
-            var timeDiff = DateTime.Now - userDetails.UpdatedAt;
-
-            if (timeDiff > new TimeSpan(0, GlobalConstants.LOCKOUT_TIME, 0)) return new RequestResponse<string>{
-                Status=HttpStatusCode.BadRequest,Message="Locked Out: Check mail for new OTP"};
-
             var otp = HttpContext.Current.Session[SessionData.OTP] == null ? "" :
                 (string)HttpContext.Current.Session[SessionData.OTP];
-            if (_repo.CodeGenerator.VerifyCode(code, otp)) return new RequestResponse<string>{
-                    Status = HttpStatusCode.OK, Message = "access code is correct"};
+            if (code == otp) {
+                HttpContext.Current.Session.Remove(SessionData.OTPRequestTime);
+                return new RequestResponse<string>
+                {
+                    Status = HttpStatusCode.OK,
+                    Message = "access code is correct"
+                };
+            }
+           
+
             return new RequestResponse<string>
             {
                 Status = HttpStatusCode.BadRequest,
@@ -320,6 +323,8 @@ namespace archivesystemWebUI.Services
             if(userAccessDetails.Count() != 1) return FolderServiceResult.NotFound;
 
             var code=_repo.CodeGenerator.NewOTP();
+            HttpContext.Current.Session[SessionData.OTP] = code;
+            HttpContext.Current.Session[SessionData.OTPRequestTime] = DateTime.Now;
             await  _repo.MailSender.SendEmailAsync(
                     user.Single().Email,
                     "One Time AccessCode",

@@ -7,55 +7,21 @@ using Microsoft.AspNet.Identity.Owin;
 
 namespace archivesystemDomain.Services
 {
-    public static class SeedAppData
+    public  class SeedAppData
     {
 
         public static void EnsurePopulated()
         {
             var dbContext = new ApplicationDbContext();
-
             if (!dbContext.Folders.Any())
             {
-                // create faculties and departments
-                List<Faculty> faculties = new List<Faculty>
+                //Create non academic staff folder
+                Faculty faculty = new Faculty
                 {
-                    new Faculty
-                    {
-                        Name = "Engineering",
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
-                        Departments = new List<Department>()
-                        {
-                            new Department
-                            {
-                                Name = "Electronic Engineering",
-                                CreatedAt = DateTime.Now,
-                                UpdatedAt = DateTime.Now
-                            }
-                        }
-
-                    },
-                    new Faculty
-                    {
-                        Name = "Arts",
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
-                        Departments = new List<Department>
-                        {
-                            new Department
-                            {
-                                Name = "People and Culture",
-                                CreatedAt = DateTime.Now,
-                                UpdatedAt = DateTime.Now
-                            }
-                        }
-                    },
-                    new Faculty
-                    {
-                        Name="Non Academic",
-                        CreatedAt=DateTime.Now,
-                        UpdatedAt= DateTime.Now,
-                        Departments = new List<Department>
+                    Name = "Non Academic",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    Departments = new List<Department>
                         {
                             new Department
                             {
@@ -64,40 +30,16 @@ namespace archivesystemDomain.Services
                                 UpdatedAt = DateTime.Now
                             }
                         }
-                    }
                 };
 
-
-                //create faculty and departmental folders 
-                var facultyFolders = new List<Folder>();
-                foreach (var faculty in faculties)
+                //create base acessLevel 
+                var baseLevel = new AccessLevel
                 {
-                    facultyFolders.Add(
-
-                        new Folder
-                        {
-                            Name = faculty.Name,
-                            CreatedAt = DateTime.Now,
-                            UpdatedAt = DateTime.Now,
-                            AccessLevelId = 1,
-                            IsRestricted = true,
-                            Faculty=faculty,
-                            Subfolders = new List<Folder>
-                            { 
-                                new Folder
-                                {
-                                    Name=faculty.Departments[0].Name,
-                                    CreatedAt = DateTime.Now,
-                                    UpdatedAt = DateTime.Now,
-                                    AccessLevelId = 1,
-                                    IsRestricted=true,
-                                    Department=faculty.Departments[0]
-                                }
-                            }
-                                
-                        });
-                }
-
+                    Level = 1,
+                    LevelDescription = "Base level",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
 
                 //create Root folder
                 var rootFolder = new Folder
@@ -106,29 +48,51 @@ namespace archivesystemDomain.Services
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                     IsRestricted = true,
-                    AccessLevel = new AccessLevel
+                    AccessLevel = baseLevel,
+                    Subfolders = new List<Folder>
                     {
-                        Level = AccessLevelNames.BaseLevel,
-                        LevelDescription = "Base level",
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now
-                    },
-                    Subfolders =facultyFolders
+                        new Folder
+                        {
+                            Name = faculty.Name,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now,
+                            AccessLevelId = 1,
+                            IsRestricted = true,
+                            Faculty = faculty
+
+                        }
+                    }
                 };
 
                 //seed the root folder,faculties , departments and their folders
                 dbContext.Folders.Add(rootFolder);
 
+                //Seed AccessLevels
+                var accessLevels = GetAccessLevels();
+                dbContext.AccessLevels.AddRange(accessLevels);
+
                 //save changes
                 dbContext.SaveChanges();
             };
-                
-
-            
-
-
-        
         }
+
+        private static List<AccessLevel> GetAccessLevels()
+        {
+            var accessLevels = new List<AccessLevel>();
+            for (int i=2; i<15; i++)
+            {
+                new AccessLevel
+                {
+                    Level = i,
+                    LevelDescription = "Access Level " + i,
+                    CreatedAt=DateTime.Now,
+                    UpdatedAt=DateTime.Now,
+                };
+            }
+            return accessLevels;
+        }
+
+
     }
 }
           

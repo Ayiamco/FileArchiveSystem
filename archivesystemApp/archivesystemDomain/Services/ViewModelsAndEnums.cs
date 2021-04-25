@@ -8,7 +8,7 @@ namespace archivesystemDomain.Services
 {
     public class AccessLevelNames
     {
-        public const string BaseLevel = "1";
+        public const int BaseLevel = 1;
     }
 
     public enum AllowableFolderDepth
@@ -69,5 +69,6 @@ namespace archivesystemDomain.Services
         public const string DeptId = "DeptId";
         public const string FacultyId = "FacultyId";
         public const string OTP = "OTP";
+        public const string OTPRequestTime = "OTPRequestTime";
     }
 }

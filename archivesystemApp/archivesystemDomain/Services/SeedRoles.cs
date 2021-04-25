@@ -25,6 +25,7 @@ namespace archivesystemDomain.Services
             Create(RoleNames.FacultyOfficer);
             Create(RoleNames.HOD);
             Create(RoleNames.DeptOfficer);
+            Create(RoleNames.Management);
 
             void Create(string name)
             {

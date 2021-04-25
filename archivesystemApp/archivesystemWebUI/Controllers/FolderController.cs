@@ -22,15 +22,11 @@ using System.Web.Security;
 
 namespace archivesystemWebUI.Controllers
 {
-
-    [Authorize(Roles = RoleNames.FolderAllowedRoles)]
-    //[CheckSessionData]
+    [Authorize]
     [RegisterRequestTime]
   
     public class FolderController : Controller
     {
-        
-
         private readonly IRoleService _roleService;
         private readonly IAccessCodeGenerator _accessCodeGenerator;
         private readonly IFolderService _service;
@@ -58,6 +54,7 @@ namespace archivesystemWebUI.Controllers
 
             if (!HttpContext.User.IsInRole(RoleNames.Admin))
             {
+                if (requestForOTP == true) _service.SendAccessCode(User.Identity.GetUserId());
                 model.RequestForOTP = returnUrl == "/folders" ?  false: requestForOTP;
                 var hasCorrectAccessCode = Session[SessionData.AccessValidated] != null;
                 var errorMessage = hasCorrectAccessCode ? 
@@ -137,7 +134,7 @@ namespace archivesystemWebUI.Controllers
             return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);  
         }
 
-         [Route("folders/resendotp")]
+        [Route("folders/resendotp")]
         public async Task<ActionResult> SendAccessCode()
         {
             var result= await _service.SendAccessCode(HttpContext.User.Identity.GetUserId());
@@ -145,7 +142,6 @@ namespace archivesystemWebUI.Controllers
 
             return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
-
 
         //GET: /folders/{id}
         [Route("folders/{folderId:int}")]
@@ -264,13 +260,13 @@ namespace archivesystemWebUI.Controllers
          
         //POST: /Folder/VerifyAccessCode
         [HttpPost]
-        public JsonResult VerifyAccessCode(string accessCode)
+        public async Task< JsonResult> VerifyAccessCode(string accessCode)
         {
             if (string.IsNullOrWhiteSpace(accessCode))
                 return Json(new RequestResponse<string> {Status=HttpStatusCode.BadRequest, Message="accesscode cannot be empty" });
 
             var userId = HttpContext.User.Identity.GetUserId();
-            var result = _service.VerifyAccessCode(userId,accessCode);
+            var result =  await _service.VerifyAccessCode(userId,accessCode);
             if (result.Status == HttpStatusCode.OK) 
             {
                 Session[SessionData.AccessValidated] = true;

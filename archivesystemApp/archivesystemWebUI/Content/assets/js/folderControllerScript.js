@@ -252,6 +252,7 @@ async function CtrlV(newParentFolderId ) {
 async function VerifyAccessToken(event) {
     event.preventDefault();
     document.getElementById("verifyaccesstoken-btn").disabled = true;
+    document.getElementById("confirming-code").style.display = "block";
     let verificationToken = document.getElementsByName("__RequestVerificationToken")[0].value;
     let input = document.getElementById('EAC-code')
     var accessCode =input.value;
@@ -269,7 +270,7 @@ async function VerifyAccessToken(event) {
     })
     let validationMessageDiv = document.getElementById("EAC-form").children[1];
     let respJson = await resp.json();
-   
+    document.getElementById("confirming-code").style.display = "none";
     if (respJson.Status === 200) {
         validationMessageDiv.innerHTML = "";
         Swal.fire({
@@ -285,10 +286,18 @@ async function VerifyAccessToken(event) {
     }
     else {
         document.getElementById("verifyaccesstoken-btn").disabled = false;
+        Swal.fire({
+            position: 'top-end',
+            icon: 'error',
+            title: `${respJson.Message ? respJson.Message: "internal server error"}`,
+            showConfirmButton: false,
+            timer: 2000
+        });
         validationMessageDiv.innerHTML = (
             `<ul>
                 <li>${respJson.Message}</li>
             </ul>`)
+        
     }
 
 }

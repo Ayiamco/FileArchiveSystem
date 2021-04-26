@@ -33,16 +33,7 @@ namespace archivesystemWebUI.Infrastructures.CustomFilters
             }
             
             LogData();
-            var hasCorrectAcessCode = httpContext.Session[SessionData.AccessValidated]!=null;
-            var lastRequestTime =  httpContext.Session[SessionData.LastRequestTime] == null ?
-               DateTime.Parse("01/01/1970") : (DateTime?)HttpContext.Current.Session[SessionData.LastRequestTime];
-
-            var timeDiff = DateTime.Now - lastRequestTime;
-            if (timeDiff> new TimeSpan(0,GlobalConstants.LOCKOUT_TIME,0) || !hasCorrectAcessCode)
-            {
-                httpContext.Response.Redirect("/folders?returnUrl="+ httpContext.Request.RawUrl);
-                filterContext.Result = new EmptyResult();
-            }
+            
            
 
         }

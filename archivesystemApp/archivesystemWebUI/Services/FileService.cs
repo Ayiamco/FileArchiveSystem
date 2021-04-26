@@ -17,31 +17,29 @@ namespace archivesystemWebUI.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFolderRepo _folderRepo;
-        private readonly IUpsertFile _upsertFile;
         private readonly IFileRepo _fileRepo;
 
         public FileService(
             IUnitOfWork unitOfWork,
             IFolderRepo folderRepo,
-            IUpsertFile upsertFile,
             IFileRepo fileRepo)
         {
             _unitOfWork = unitOfWork;
             _folderRepo = folderRepo;
-            _upsertFile = upsertFile;
             _fileRepo = fileRepo;
         }
 
         public (bool save, FileMetaVm model) Create(FileMetaVm model, HttpPostedFileBase fileBase)
         {
-            if (fileBase != null)  model.File = _upsertFile.Save(model.File, fileBase);
-           
-            model.File.IsArchived = model.Archive;
-            model.File.AccessLevelId = model.AccessLevelId;
-            model.File.UploadedById = model.UploadedById;
-            model.File.Name = $"{model.Title}.{fileBase.FileName?.Split('.').Last()}";
-            model.File.ContentType = fileBase.ContentType;
-            model.File.FileContent = new FileContent
+           var  file = new archivesystemDomain.Entities.File();
+            file.IsArchived = model.Archive;
+            file.AccessLevelId = model.AccessLevelId;
+            file.UploadedById = model.UploadedById;
+            file.Name = $"{model.Title}.{fileBase.FileName?.Split('.').Last()}";
+            file.ContentType = fileBase.ContentType;
+            file.CreatedAt = DateTime.Now;
+            file.UpdatedAt = DateTime.Now;
+            file.FileContent = new FileContent
             {
                 Title = $"{Guid.NewGuid():N}.{fileBase.FileName?.Split('.').Last()}",
                 CreatedAt = DateTime.Now,
@@ -49,20 +47,20 @@ namespace archivesystemWebUI.Services
             };
 
             if (model.Archive)
-                model.File.FileContent.Content = ZipFile(fileBase, model.Title + "." + model.FileBase.FileName.Split('.').Last());
+                file.FileContent.Content = ZipFile(fileBase, model.Title + "." + model.FileBase.FileName.Split('.').Last());
             else
-                model.File.FileContent.Content = ZipFile(fileBase, model.Title + "." + model.FileBase.FileName.Split('.').Last());
+                file.FileContent.Content = ReadBytes(fileBase);
 
 
             _folderRepo.FindWithNavProps(f => f.Id == model.FolderId, _ => _.Files)
-                       .SingleOrDefault()?.Files.Add(model.File);
+                       .SingleOrDefault()?.Files.Add(file);
             _unitOfWork.Save();
             return (true, model);
 
         }
         private byte[] ReadBytes(HttpPostedFileBase file)
         {
-            using (var reader = new System.IO.BinaryReader(file.InputStream))
+            using (var reader = new BinaryReader(file.InputStream))
             {
                 var bytes= reader.ReadBytes(file.ContentLength);
                 return bytes;

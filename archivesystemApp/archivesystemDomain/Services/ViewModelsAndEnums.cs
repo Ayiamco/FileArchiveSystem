@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Configuration;
 
 namespace archivesystemDomain.Services
 {
@@ -37,7 +38,7 @@ namespace archivesystemDomain.Services
         public const string userHasNoAccesscode = " userHasNoAccesscode";
         public const string RootFolderName = "Root";
         public const int MaxFolderDepth = 7;
-        public  const byte LOCKOUT_TIME = 100;
+        public static readonly int LOCKOUT_TIME = Convert.ToInt32( WebConfigurationManager.AppSettings["LockOutTime"]);
 
     }
 
